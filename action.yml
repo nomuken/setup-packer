@@ -1,11 +1,13 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Setup packer'
+description: 'set up packer cli for github actions runner'
+author: 'nomuken'
 inputs:
-  milliseconds: # change this
-    required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  github_token:
+    description: 'Your GitHub token(It will set the GitHub Actions token). It is for searching valid Packer versions from GitHub repository (hashicorp/packer).'
+    default: '${{github.token}}'
+  packer_version:
+    description: 'The version of Packer CLI. It can only set "latest" or version name like "v1.2.3".'
+    default: "latest"
 runs:
   using: 'node12'
   main: 'dist/index.js'
