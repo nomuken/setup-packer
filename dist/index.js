@@ -10,15 +10,15 @@ require('./sourcemap-register.js');module.exports =
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PLATFORM = exports.ARCH = void 0;
 const ARCH = {
-    "arm": "arm",
-    "arm64": "arm64",
-    "x32": "386",
-    "x64": "amd64"
+    arm: 'arm',
+    arm64: 'arm64',
+    x32: '386',
+    x64: 'amd64'
 };
 exports.ARCH = ARCH;
 const PLATFORM = {
-    "sunos": "solaris",
-    "win32": "windows"
+    sunos: 'solaris',
+    win32: 'windows'
 };
 exports.PLATFORM = PLATFORM;
 
@@ -78,12 +78,19 @@ function getDownloadURL(version) {
 }
 function getPackerRecentReleases() {
     return __awaiter(this, void 0, void 0, function* () {
-        const github_token = core.getInput("github_token");
+        const github_token = core.getInput('github_token');
         const octkit = github.getOctokit(github_token);
         // get release name from packer repository
         // FIXME: It expect returning 100 releases. but GitHub REST API return only 17 releases (bug?)
-        const packer_releases = (yield octkit.repos.listReleases({ owner: 'hashicorp', repo: 'packer', per_page: 100 }));
-        const releases = packer_releases.data.map(el => el.tag_name).filter((el) => el !== "nightly" && Boolean(el)).map(el => {
+        const packer_releases = yield octkit.repos.listReleases({
+            owner: 'hashicorp',
+            repo: 'packer',
+            per_page: 100
+        });
+        const releases = packer_releases.data
+            .map(el => el.tag_name)
+            .filter((el) => el !== 'nightly' && Boolean(el))
+            .map(el => {
             const m = el.match(/((\d+)\.?){3}/g);
             if (m === null)
                 return el;
@@ -96,11 +103,11 @@ function getPackerRecentReleases() {
 function convertFromVersionSlug(slug) {
     return __awaiter(this, void 0, void 0, function* () {
         // only accept tag_name of Packer repository (e.g. "v1.23.4") or "latest"
-        if (slug !== "latest" && !/^v((\d+)\.)+\d$/g.test(slug)) {
+        if (slug !== 'latest' && !/^v((\d+)\.)+\d$/g.test(slug)) {
             throw new Error(`Invalid version format: ${slug}`);
         }
         const recent_releases = yield getPackerRecentReleases();
-        const version_slug = slug === "latest" ? recent_releases[0] : slug.substr(1);
+        const version_slug = slug === 'latest' ? recent_releases[0] : slug.substr(1);
         if (!recent_releases.includes(version_slug)) {
             core.warning(`Packer version "v${version_slug}" is not included a recent Packer releases.`);
         }
@@ -125,11 +132,14 @@ function renamePackerCLI(packer_cli_directory_path) {
         const suffix = getPlatform() === 'windows' ? '.exe' : '';
         const src = path.join(packer_cli_directory_path, `packer${suffix}`);
         const dest = path.join(packer_cli_directory_path, `packer-bin${suffix}`);
-        core.debug(`Moving "${src}" to "${dest}".`);
-        yield io.mv(src, dest).catch(e => {
+        try {
+            core.debug(`Moving "${src}" to "${dest}".`);
+            yield io.mv(src, dest);
+        }
+        catch (e) {
             core.error(`Unable to move "${src}" to "${dest}".`);
             throw e;
-        });
+        }
     });
 }
 exports.renamePackerCLI = renamePackerCLI;
