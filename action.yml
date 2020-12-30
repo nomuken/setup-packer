@@ -1,4 +1,4 @@
-name: 'Setup packer'
+name: 'Nomuken - Setup packer'
 description: 'set up packer cli for github actions runner'
 author: 'nomuken'
 inputs:
