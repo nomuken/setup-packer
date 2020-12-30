@@ -14,6 +14,7 @@ async function runner(): Promise<void> {
 }
 
 try {
+  console.log("tasukete")
   runner()
 } catch (e) {
   core.setFailed(e)
